@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap 101 Template</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+  </head>
+  <body>
+    <h1>Hello, world!</h1>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-6">
+          <form id="target" role="form">
+              <button type="submit" class="btn btn-primary">
+                Submit
+              </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> -->
+    <script>
+      
+      const baseURL = 'http://localhost:8000/v1.0';
+      const token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvb3BlbmlkIiwiYXVkIjpbInNwaWZmd29ya2Zsb3ctYmFja2VuZCIsImFjY291bnQiXSwiaWF0IjoxNzAwOTc5MTUzLjMxNzM4OSwiZXhwIjoxNzAxMDY1NTUzLjMxNzM5MjMsInN1YiI6ImFkbWluIiwiZW1haWwiOiJhZG1pbkBzcGlmZndvcmtmbG93Lm9yZyIsInByZWZlcnJlZF91c2VybmFtZSI6IkFkbWluIn0.RL-UtBHB9fZOBfHaepgcwQ1-Dhd0kASSmk0NNMYz3to';
+
+      function ProcessInstance(processName) {
+        return $.ajax({
+          type: "POST",
+          url: baseURL + '/process-instances/' + processName,
+          async: false,
+          headers: {
+            'Authorization': token,
+            'Access-Control-Allow-Origin': '*'
+          }
+        }).responseJSON;
+      }
+
+      function RunProcessInstance(processName, processID) {
+        return $.ajax({
+          type: "POST",
+          url: baseURL + '/process-instances/' + processName + '/' + processID.toString() + '/run',
+          async: false,
+          headers: {
+            'Authorization': token,
+            'Access-Control-Allow-Origin': '*'
+          }
+        }).responseJSON;
+      }
+
+      function RunTask(processID, nextTaskID) {
+        return $.ajax({
+          type: "PUT",
+          url: baseURL + '/tasks/' + processID.toString() + '/' + nextTaskID,
+          async: false,
+          headers: {
+            'Authorization': token,
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': 'application/json'
+          },
+          data: JSON.stringify({'firstName': 'Halim'})
+        }).responseJSON;
+      }
+
+      $(document).ready(function() {
+        $('#target').on("submit", function(event) {
+          event.preventDefault();
+          let processName = 'example:form';
+
+          let processInstance = ProcessInstance(processName);
+          let processID = processInstance.id;
+
+          let runProcess = RunProcessInstance(processName, processID);
+          let nextTaskID = runProcess.next_task.id;
+
+          RunTask(processID, nextTaskID);
+
+        });
+      });
+        
+    </script>
+  </body>
+</html>
